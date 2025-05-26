@@ -46,24 +46,35 @@ export async function loadLibraryConfig(
       console.log("未找到'同步配置'页面，使用默认配置（同步所有状态）");
       return {
         enabledReadingStatus: ["已读", "在读", "未读"],
+        enabledAuthors: [], // 空数组表示不限制作者
       };
     }
 
     // 获取第一个匹配的配置页面
     const configPage = data.results[0];
     const readingStatusOptions = configPage.properties.阅读状态.multi_select;
+    const authorOptions = configPage.properties.作者.multi_select;
 
     // 提取选中的阅读状态
     const enabledReadingStatus = readingStatusOptions.map(
       (option) => option.name
     );
 
+    // 提取选中的作者
+    const enabledAuthors = authorOptions.map((option) => option.name);
+
     console.log(
       `配置加载成功，启用的阅读状态: ${enabledReadingStatus.join(", ")}`
+    );
+    console.log(
+      `配置加载成功，启用的作者: ${
+        enabledAuthors.length > 0 ? enabledAuthors.join(", ") : "无限制"
+      }`
     );
 
     return {
       enabledReadingStatus,
+      enabledAuthors,
     };
   } catch (error: any) {
     console.error("读取配置数据库失败:", error.message);
@@ -72,6 +83,7 @@ export async function loadLibraryConfig(
     // 出错时返回默认配置
     return {
       enabledReadingStatus: ["已读", "在读", "未读"],
+      enabledAuthors: [], // 空数组表示不限制作者
     };
   }
 }

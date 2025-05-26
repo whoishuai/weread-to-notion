@@ -36,6 +36,7 @@ export async function syncAllBooksWithConfig(
     // 1. 加载同步配置
     let config: LibraryConfig = {
       enabledReadingStatus: ["已读", "在读", "未读"], // 默认同步所有状态
+      enabledAuthors: [], // 默认不限制作者
     };
 
     if (configDatabaseId) {

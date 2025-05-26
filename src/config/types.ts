@@ -61,6 +61,7 @@ export type NotionBlockType = "highlights" | "thoughts";
  */
 export interface LibraryConfig {
   enabledReadingStatus: string[]; // 启用的阅读状态 ["已读", "在读", "未读"]
+  enabledAuthors: string[]; // 启用的作者列表
 }
 
 /**
@@ -92,7 +93,7 @@ export interface ConfigDatabasePage {
         name: string;
       }>;
     };
-    作者?: {
+    作者: {
       multi_select: Array<{
         name: string;
       }>;

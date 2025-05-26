@@ -28,15 +28,33 @@ export function filterBooksByConfig(
   console.log(`\n=== 开始过滤书籍 ===`);
   console.log(`总书籍数量: ${books.length}`);
   console.log(`启用的阅读状态: ${config.enabledReadingStatus.join(", ")}`);
+  console.log(
+    `启用的作者: ${
+      config.enabledAuthors.length > 0
+        ? config.enabledAuthors.join(", ")
+        : "无限制"
+    }`
+  );
 
   const filteredBooks = books.filter((book) => {
     const bookStatus = mapReadingStatusFromString(book.finishReadingStatus);
+    const bookAuthor = book.author || "";
 
     // 检查该书的阅读状态是否在启用列表中
-    const shouldSync = config.enabledReadingStatus.includes(bookStatus);
+    const statusMatches = config.enabledReadingStatus.includes(bookStatus);
+
+    // 检查该书的作者是否在启用列表中（如果配置了作者过滤）
+    const authorMatches =
+      config.enabledAuthors.length === 0 ||
+      config.enabledAuthors.includes(bookAuthor);
+
+    const shouldSync = statusMatches && authorMatches;
 
     if (!shouldSync) {
-      console.log(`跳过书籍《${book.title}》- 状态: ${bookStatus}`);
+      const reason = [];
+      if (!statusMatches) reason.push(`状态: ${bookStatus}`);
+      if (!authorMatches) reason.push(`作者: ${bookAuthor}`);
+      console.log(`跳过书籍《${book.title}》- ${reason.join(", ")}`);
     }
 
     return shouldSync;
@@ -65,11 +83,16 @@ export function showFilterStats(
   };
 
   // 统计各状态书籍数量
+  const authorStats = new Map<string, number>();
   allBooks.forEach((book) => {
     const status = mapReadingStatusFromString(book.finishReadingStatus);
     if (status === "已读") stats.已读++;
     else if (status === "在读") stats.在读++;
     else stats.未读++;
+
+    // 统计作者分布
+    const author = book.author || "未知作者";
+    authorStats.set(author, (authorStats.get(author) || 0) + 1);
   });
 
   console.log("\n=== 书籍同步统计 ===");
@@ -77,7 +100,27 @@ export function showFilterStats(
   console.log(`  - 已读: ${stats.已读} 本`);
   console.log(`  - 在读: ${stats.在读} 本`);
   console.log(`  - 未读: ${stats.未读} 本`);
+
+  // 显示作者统计（如果有作者过滤配置）
+  if (config.enabledAuthors.length > 0) {
+    console.log(`作者分布:`);
+    const sortedAuthors = Array.from(authorStats.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5); // 只显示前5个
+    sortedAuthors.forEach(([author, count]) => {
+      const isEnabled = config.enabledAuthors.includes(author);
+      console.log(`  - ${author}: ${count} 本 ${isEnabled ? "✓" : "✗"}`);
+    });
+  }
+
   console.log(`配置的同步状态: ${config.enabledReadingStatus.join(", ")}`);
+  console.log(
+    `配置的同步作者: ${
+      config.enabledAuthors.length > 0
+        ? config.enabledAuthors.join(", ")
+        : "无限制"
+    }`
+  );
   console.log(`将要同步: ${stats.同步数量} 本书籍`);
   console.log("==================\n");
 }
