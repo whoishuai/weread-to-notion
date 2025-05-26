@@ -133,19 +133,17 @@ export async function syncAllBooksWithConfig(
         continue; // 跳过此书继续处理下一本
       }
 
-      // 保存同步状态
-      if (useIncremental) {
-        const syncState = {
-          bookId: book.bookId,
-          lastSyncTime: Date.now(),
-          highlightsSynckey: syncContentResult.highlightsSynckey,
-          thoughtsSynckey: syncContentResult.thoughtsSynckey,
-        };
-        saveSyncState(syncState);
-        console.log(
-          `已保存同步状态，highlightsSynckey: ${syncContentResult.highlightsSynckey}, thoughtsSynckey: ${syncContentResult.thoughtsSynckey}`
-        );
-      }
+      // 保存同步状态（无论增量还是全量同步都需要保存，以便下次增量同步使用）
+      const syncState = {
+        bookId: book.bookId,
+        lastSyncTime: Date.now(),
+        highlightsSynckey: syncContentResult.highlightsSynckey,
+        thoughtsSynckey: syncContentResult.thoughtsSynckey,
+      };
+      saveSyncState(syncState);
+      console.log(
+        `已保存同步状态，highlightsSynckey: ${syncContentResult.highlightsSynckey}, thoughtsSynckey: ${syncContentResult.thoughtsSynckey}`
+      );
 
       if (syncContentResult.success) {
         console.log(`《${book.title}》同步成功`);
