@@ -96,6 +96,7 @@ jobs:
           NOTION_INTEGRATIONS: ${{ secrets.NOTION_INTEGRATIONS }}
           DATABASE_ID: ${{ secrets.DATABASE_ID }}
           NOTION_VERSION: ${{ secrets.NOTION_VERSION }}
+          CONFIG_DATABASE_ID: ${{ secrets.CONFIG_DATABASE_ID }}
 
       # 将更新的同步状态保存到data分支
       - name: Update sync state in data branch
@@ -103,20 +104,20 @@ jobs:
           mkdir -p .data-branch/data/sync-state
           # 确保同步状态目录存在
           mkdir -p main-branch/data/sync-state
-          
+
           # 复制所有数据文件，包括同步状态和数据库版本文件
           cp -r main-branch/data/* .data-branch/data/ 2>/dev/null || true
-          
+
           cd .data-branch
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           # 重新设置remote以使用token认证
           git remote set-url origin "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git"
-          
+
           # 添加所有数据文件，包括数据库版本文件
           git add data/
           git status
-          
+
           if git diff --staged --quiet; then
             echo "数据没有变化"
           else
