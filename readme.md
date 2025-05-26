@@ -50,6 +50,10 @@
 
 - 增加使用 raycast 快速触发 actions 脚本
 
+## TODO
+
+- 筛选功能：仅同步已读和在读书籍
+
 ## 致谢
 
 [obsidian-weread-plugin](https://github.com/zhaohongxuan/obsidian-weread-plugin)  
