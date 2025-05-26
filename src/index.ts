@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 import { parseArgs } from "./core/cli";
 import { syncSingleBook } from "./core/sync/book-sync";
 import { syncAllBooks } from "./core/sync/all-books-sync";
+import { syncAllBooksWithConfig } from "./core/sync/all-books-sync-with-config";
 import { getBrowserCookie } from "./utils/cookie";
 import { refreshSession } from "./api/weread/services";
 import { checkAndMigrateIfNeeded } from "./core/migration";
@@ -26,6 +27,7 @@ async function main() {
     // 获取环境变量
     const NOTION_API_KEY = process.env.NOTION_INTEGRATIONS;
     const DATABASE_ID = process.env.DATABASE_ID;
+    const CONFIG_DATABASE_ID = process.env.CONFIG_DATABASE_ID;
 
     // 验证必要的环境变量
     if (!NOTION_API_KEY) {
@@ -41,19 +43,22 @@ async function main() {
     // 解析命令行参数
     const { bookId, syncAll, fullSync: cliFullSync } = parseArgs();
     let fullSync = cliFullSync;
-    
+
     // 检查数据库版本并执行必要的迁移
     try {
-      const needsMigration = await checkAndMigrateIfNeeded(NOTION_API_KEY, DATABASE_ID);
-      
+      const needsMigration = await checkAndMigrateIfNeeded(
+        NOTION_API_KEY,
+        DATABASE_ID
+      );
+
       // 如果需要迁移，强制使用全量同步模式
       if (needsMigration) {
-        console.log('检测到数据库版本变更，将强制使用全量同步模式');
+        console.log("检测到数据库版本变更，将强制使用全量同步模式");
         fullSync = true;
       }
     } catch (error: any) {
       console.error(`数据库版本检查失败: ${error.message}`);
-      console.log('将继续使用原定同步模式');
+      console.log("将继续使用原定同步模式");
     }
 
     console.log(`同步模式: ${fullSync ? "全量" : "增量"}`);
@@ -68,7 +73,19 @@ async function main() {
 
     if (syncAll) {
       // 同步所有书籍
-      await syncAllBooks(NOTION_API_KEY, DATABASE_ID, cookie, !fullSync);
+      if (CONFIG_DATABASE_ID) {
+        console.log("检测到配置数据库ID，将使用配置过滤同步");
+        await syncAllBooksWithConfig(
+          NOTION_API_KEY,
+          DATABASE_ID,
+          cookie,
+          !fullSync,
+          CONFIG_DATABASE_ID
+        );
+      } else {
+        console.log("未配置CONFIG_DATABASE_ID，使用默认同步（所有书籍）");
+        await syncAllBooks(NOTION_API_KEY, DATABASE_ID, cookie, !fullSync);
+      }
     } else if (bookId) {
       // 同步单本书籍
       await syncSingleBook(

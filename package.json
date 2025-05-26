@@ -8,7 +8,8 @@
     "sync:full": "ts-node src/index.ts --all --full-sync",
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "test:connection": "ts-node src/test-connection.ts"
+    "test:connection": "ts-node src/test-connection.ts",
+    "test:config": "ts-node src/test-config.ts"
   },
   "keywords": [],
   "author": "",

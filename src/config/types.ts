@@ -55,3 +55,47 @@ export interface BookContentSyncResult {
  * Notion内容块类型
  */
 export type NotionBlockType = "highlights" | "thoughts";
+
+/**
+ * 图书馆配置数据库相关类型
+ */
+export interface LibraryConfig {
+  enabledReadingStatus: string[]; // 启用的阅读状态 ["已读", "在读", "未读"]
+}
+
+/**
+ * 配置数据库查询结果
+ */
+export interface ConfigDatabaseResponse {
+  object: string;
+  results: ConfigDatabasePage[];
+  next_cursor: string | null;
+  has_more: boolean;
+}
+
+/**
+ * 配置数据库页面
+ */
+export interface ConfigDatabasePage {
+  object: string;
+  id: string;
+  properties: {
+    名称: {
+      title: Array<{
+        text: {
+          content: string;
+        };
+      }>;
+    };
+    阅读状态: {
+      multi_select: Array<{
+        name: string;
+      }>;
+    };
+    作者?: {
+      multi_select: Array<{
+        name: string;
+      }>;
+    };
+  };
+}
