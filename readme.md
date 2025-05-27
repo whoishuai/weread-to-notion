@@ -20,7 +20,14 @@
 
 ## 使用教程
 
-[文字教程](https://mp.weixin.qq.com/s/uOtyp-88iPIfN10szycBvg)
+**注意：** 项目仍在迭代中，后续更新功能/模板相关说明会在公众号说明
+
+### 文字教程
+
+[基础配置](https://mp.weixin.qq.com/s/uOtyp-88iPIfN10szycBvg)  
+[支持配置阅读状态/作者](https://mp.weixin.qq.com/s/EDLoitY-qFSdMl5CHvQqzA)
+
+### 视频教程
 
 [Youtube](https://www.youtube.com/watch?v=q_k_0l2zSKA&ab_channel=sailor)
 
