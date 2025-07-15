@@ -5,7 +5,7 @@
 import { enhanceBookMetadata } from "../formatter";
 import { syncBookContent } from "./book-sync";
 import { saveSyncState } from "../../utils/file";
-import { getNotebookBooks, getBookshelfBooks } from "../../api/weread/services";
+import { getNotebookBooks, getBookshelfBooks, getBookInfo } from "../../api/weread/services";
 import {
   checkBookExistsInNotion,
   writeBookToNotion,
@@ -49,7 +49,6 @@ export async function syncAllBooks(
       console.log(
         `\n[${i + 1}/${mergedBooks.length}] 同步《${book.title}》...`
       );
-
       // 检查书籍是否已存在于Notion
       const { exists, pageId: existingPageId } = await checkBookExistsInNotion(
         apiKey,
@@ -64,8 +63,25 @@ export async function syncAllBooks(
         console.log(`《${book.title}》已存在于Notion，将更新现有记录`);
         finalPageId = existingPageId;
       } else {
+        // 获取书籍详细信息（包括ISBN和出版社）
+        console.log(`获取《${book.title}》的详细信息...`);
+        const detailedBookInfo = await getBookInfo(cookie, book.bookId);
+        
+        // 合并详细信息到书籍数据中
+        const enhancedBook = {
+          ...book,
+          // 优先使用详细API返回的信息
+          isbn: detailedBookInfo?.isbn || book.isbn || '',
+          publisher: detailedBookInfo?.publisher || book.publisher || '',
+          // 其他可能的详细信息也可以在这里添加
+          intro: detailedBookInfo?.intro || book.intro || '',
+          publishTime: detailedBookInfo?.publishTime || book.publishTime || '',
+        };
+        
+        console.log(`获取到ISBN: ${enhancedBook.isbn}, 出版社: ${enhancedBook.publisher}`);
+        
         // 写入书籍元数据到Notion
-        const writeResult = await writeBookToNotion(apiKey, databaseId, book);
+        const writeResult = await writeBookToNotion(apiKey, databaseId, enhancedBook);
 
         if (!writeResult.success || !writeResult.pageId) {
           failCount++;

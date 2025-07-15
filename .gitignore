@@ -65,3 +65,6 @@ testem.log
 
 # Optional eslint cache
 .eslintcache
+
+# data目录下的sync-state目录下的所有json文件
+data/sync-state/*.json

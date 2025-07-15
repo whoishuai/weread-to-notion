@@ -5,11 +5,13 @@
  */
 
 // 当前数据库版本号，更改数据库结构时递增
-export const CURRENT_DB_VERSION = 2;
+export const CURRENT_DB_VERSION = 3;
 
 // 数据库版本变更历史记录
 export const DB_MIGRATIONS = {
   1: "初始版本 - 包含阅读状态、开始阅读、完成阅读、阅读总时长和阅读进度字段",
+  2: "增强版本 - 添加了更准确的阅读进度追踪",
+  3: "元数据版本 - 添加ISBN和出版社字段支持",
 };
 
 // 数据库必要字段列表（用于检测数据库是否包含必要字段）
@@ -21,4 +23,6 @@ export const REQUIRED_DB_PROPERTIES = [
   "完成阅读",
   "阅读总时长",
   "阅读进度",
+  "ISBN",
+  "出版社",
 ];

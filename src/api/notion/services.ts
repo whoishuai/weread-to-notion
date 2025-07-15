@@ -6,7 +6,13 @@ import axios, { AxiosError } from "axios";
 import { NOTION_API_BASE_URL, NOTION_VERSION } from "../../config/constants";
 import { NotionBlockType } from "../../config/types";
 import { getNotionHeaders } from "../../utils/http";
-import { BookProperties, NotionBlock, NotionPage, BookExistsResult, BookWriteResult } from "./models";
+import {
+  BookProperties,
+  NotionBlock,
+  NotionPage,
+  BookExistsResult,
+  BookWriteResult,
+} from "./models";
 
 /**
  * 检查Notion数据库是否包含所有必要的属性字段
@@ -21,7 +27,7 @@ export async function checkDatabaseProperties(
   requiredProperties: string[]
 ): Promise<string[]> {
   console.log(`检查数据库属性: ${databaseId}`);
-  
+
   try {
     // 设置请求头
     const headers = {
@@ -29,22 +35,22 @@ export async function checkDatabaseProperties(
       "Notion-Version": NOTION_VERSION,
       "Content-Type": "application/json",
     };
-    
+
     // 获取数据库信息
     const response = await axios.get(
       `${NOTION_API_BASE_URL}/databases/${databaseId}`,
       { headers }
     );
-    
+
     // 数据库中存在的属性
     const existingProperties = Object.keys(response.data.properties || {});
-    console.log(`数据库包含以下属性: ${existingProperties.join(', ')}`);
-    
+    console.log(`数据库包含以下属性: ${existingProperties.join(", ")}`);
+
     // 检查缺少的属性
     const missingProperties = requiredProperties.filter(
-      prop => !existingProperties.includes(prop)
+      (prop) => !existingProperties.includes(prop)
     );
-    
+
     return missingProperties;
   } catch (error: any) {
     console.error(`检查数据库属性失败: ${error.message}`);
@@ -52,7 +58,7 @@ export async function checkDatabaseProperties(
       console.error(`状态码: ${error.response.status}`);
       console.error(`响应: ${JSON.stringify(error.response.data)}`);
     }
-    
+
     // 如果无法检查，返回空数组以避免阻止同步
     return [];
   }
@@ -65,12 +71,12 @@ export async function checkDatabaseProperties(
  */
 function formatReadingTime(seconds: number): string {
   if (seconds <= 0) return "未阅读";
-  
+
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
-  
+
   if (hours > 0) {
-    return `${hours}小时${minutes > 0 ? ` ${minutes}分钟` : ''}`;
+    return `${hours}小时${minutes > 0 ? ` ${minutes}分钟` : ""}`;
   } else {
     return `${minutes}分钟`;
   }
@@ -260,31 +266,47 @@ export async function writeBookToNotion(
         // 阅读状态是select类型
         阅读状态: {
           select: {
-            name: bookData.finishReadingStatus ||
-              (bookData.finishReading ? "✅已读" : 
-              (bookData.progress && bookData.progress > 0 ? "📖在读" : "📕未读")),
+            name:
+              bookData.finishReadingStatus ||
+              (bookData.finishReading
+                ? "✅已读"
+                : bookData.progress && bookData.progress > 0
+                ? "📖在读"
+                : "📕未读"),
           },
         },
         // 开始阅读日期 - 如果有startReadingTime则转换为可读日期
         开始阅读: {
-          date: bookData.progressData?.startReadingTime ? {
-            start: new Date(bookData.progressData.startReadingTime * 1000).toISOString().split('T')[0],
-          } : null,
+          date: bookData.progressData?.startReadingTime
+            ? {
+                start: new Date(bookData.progressData.startReadingTime * 1000)
+                  .toISOString()
+                  .split("T")[0],
+              }
+            : null,
         },
         // 完成阅读日期 - 如果有finishTime则转换为可读日期
         完成阅读: {
-          date: bookData.progressData?.finishTime ? {
-            start: new Date(bookData.progressData.finishTime * 1000).toISOString().split('T')[0],
-          } : null,
+          date: bookData.progressData?.finishTime
+            ? {
+                start: new Date(bookData.progressData.finishTime * 1000)
+                  .toISOString()
+                  .split("T")[0],
+              }
+            : null,
         },
         // 阅读总时长 - 转换为小时和分钟格式
         阅读总时长: {
-          rich_text: [{
-            type: "text",
-            text: {
-              content: bookData.progressData?.readingTime ? formatReadingTime(bookData.progressData.readingTime) : "未记录",
+          rich_text: [
+            {
+              type: "text",
+              text: {
+                content: bookData.progressData?.readingTime
+                  ? formatReadingTime(bookData.progressData.readingTime)
+                  : "未记录",
+              },
             },
-          }],
+          ],
         },
         // 阅读进度 - 数字类型，直接使用API返回的progress值
         阅读进度: {
@@ -292,7 +314,6 @@ export async function writeBookToNotion(
         },
       },
     };
-
     // 发送请求创建页面
     const response = await axios.post(`${NOTION_API_BASE_URL}/pages`, data, {
       headers,

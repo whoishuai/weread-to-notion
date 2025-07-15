@@ -33,56 +33,75 @@ export async function getBookProgress(
     if (response.data && response.data.book) {
       const book = response.data.book;
       console.log("\n=== 书籍阅读详细信息 ===>");
-      
       // 阅读进度
       console.log(`progress (阅读进度): ${book.progress}%`);
-      
+
       // 阅读状态
-      console.log(`isStartReading (是否开始阅读): ${book.isStartReading === 1 ? '是(1)' : '否(0)'}`);
-      
+      console.log(
+        `isStartReading (是否开始阅读): ${
+          book.isStartReading === 1 ? "是(1)" : "否(0)"
+        }`
+      );
+
       // 阅读时长
       if (book.readingTime) {
         const readingTimeMinutes = Math.round(book.readingTime / 60);
         const readingTimeHours = (book.readingTime / 3600).toFixed(1);
-        console.log(`readingTime (阅读总时长): ${book.readingTime}秒 (${readingTimeMinutes}分钟，约${readingTimeHours}小时)`);
+        console.log(
+          `readingTime (阅读总时长): ${book.readingTime}秒 (${readingTimeMinutes}分钟，约${readingTimeHours}小时)`
+        );
       } else {
         console.log(`readingTime (阅读总时长): 0秒`);
       }
-      
+
       // 开始阅读时间
       if (book.startReadingTime) {
         const startDate = new Date(book.startReadingTime * 1000);
-        console.log(`startReadingTime (首次阅读时间): ${book.startReadingTime} (${startDate.toLocaleString()})`);
+        console.log(
+          `startReadingTime (首次阅读时间): ${
+            book.startReadingTime
+          } (${startDate.toLocaleString()})`
+        );
       } else {
         console.log(`startReadingTime (首次阅读时间): 未记录`);
       }
-      
+
       // 完成阅读时间
       if (book.finishTime) {
         const finishDate = new Date(book.finishTime * 1000);
-        console.log(`finishTime (完成阅读时间): ${book.finishTime} (${finishDate.toLocaleString()})`);
+        console.log(
+          `finishTime (完成阅读时间): ${
+            book.finishTime
+          } (${finishDate.toLocaleString()})`
+        );
       } else {
         console.log(`finishTime (完成阅读时间): 未记录`);
       }
-      
+
       // 当前阅读位置信息
       if (book.chapterUid) {
         console.log(`chapterUid (当前章节ID): ${book.chapterUid}`);
-        console.log(`chapterIdx (当前章节索引): ${book.chapterIdx || 'N/A'}`);
-        console.log(`chapterOffset (章节内偏移量): ${book.chapterOffset || 'N/A'}`);
+        console.log(`chapterIdx (当前章节索引): ${book.chapterIdx || "N/A"}`);
+        console.log(
+          `chapterOffset (章节内偏移量): ${book.chapterOffset || "N/A"}`
+        );
       }
-      
+
       // 当前阅读位置摘要
       if (book.summary) {
         console.log(`summary (当前阅读位置摘要): "${book.summary}"`);
       }
-      
+
       // 更新时间
       if (book.updateTime) {
         const updateDate = new Date(book.updateTime * 1000);
-        console.log(`updateTime (最后更新时间): ${book.updateTime} (${updateDate.toLocaleString()})`);
+        console.log(
+          `updateTime (最后更新时间): ${
+            book.updateTime
+          } (${updateDate.toLocaleString()})`
+        );
       }
-      
+
       console.log("<== 书籍阅读详细信息 ===\n");
     } else {
       console.log(`未找到阅读进度数据`);
