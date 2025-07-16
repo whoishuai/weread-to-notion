@@ -62,6 +62,11 @@ export async function syncAllBooksWithConfig(
 
     // 新增：根据配置 syncMode 决定 useIncremental
     const useIncrementalFromConfig = config.syncMode !== "全量";
+    // 新增：根据配置决定是否按章节组织
+    const organizeByChapterFromConfig = config.organizeByChapter === "是";
+
+    console.log(`同步模式: ${config.syncMode || "增量"}`);
+    console.log(`按章节划线: ${config.organizeByChapter || "否"}`);
 
     // 2. 获取书架中的书籍
     const shelfBooks = await getBookshelfBooks(cookie);
@@ -151,7 +156,8 @@ export async function syncAllBooksWithConfig(
         book.bookId,
         finalPageId,
         book,
-        useIncrementalFromConfig
+        useIncrementalFromConfig,
+        organizeByChapterFromConfig
       );
 
       // 检查是否有真正的更新

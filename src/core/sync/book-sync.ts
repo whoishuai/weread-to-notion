@@ -27,9 +27,11 @@ export async function syncBookContent(
   bookId: string,
   finalPageId: string,
   bookInfo: any,
-  useIncremental: boolean = true
+  useIncremental: boolean = true,
+  organizeByChapter: boolean = false
 ): Promise<BookContentSyncResult> {
   console.log(`\n=== 同步书籍内容 ===`);
+  console.log(`按章节组织: ${organizeByChapter ? "是" : "否"}`);
 
   try {
     // 获取书籍划线数据 - 使用增量同步
@@ -77,7 +79,8 @@ export async function syncBookContent(
         apiKey,
         finalPageId,
         bookInfo,
-        highlights
+        highlights,
+        organizeByChapter
       );
       console.log(
         highlightResult
@@ -96,13 +99,14 @@ export async function syncBookContent(
 
     let thoughtResult = true;
     if (hasThoughtUpdate && thoughts.length > 0) {
-      // 写入想法数据 - 传递增量更新标志
+      // 写入想法数据 - 传递增量更新标志和按章节组织标志
       thoughtResult = await writeThoughtsToNotionPage(
         apiKey,
         finalPageId,
         bookInfo,
         thoughts,
-        useIncremental
+        useIncremental,
+        organizeByChapter
       );
       console.log(
         thoughtResult ? `成功写入 ${thoughts.length} 条想法` : `写入想法失败`
@@ -141,7 +145,8 @@ export async function syncSingleBook(
   databaseId: string,
   cookie: string,
   bookId: string,
-  useIncremental: boolean = true
+  useIncremental: boolean = true,
+  organizeByChapter: boolean = false
 ): Promise<boolean> {
   console.log(
     `\n=== 开始${useIncremental ? "增量" : "全量"}同步书籍(ID: ${bookId}) ===`
@@ -190,7 +195,8 @@ export async function syncSingleBook(
       bookId,
       finalPageId,
       bookInfo,
-      useIncremental
+      useIncremental,
+      organizeByChapter
     );
 
     // 保存同步状态

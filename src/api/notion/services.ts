@@ -344,11 +344,13 @@ export async function writeHighlightsToNotionPage(
   apiKey: string,
   pageId: string,
   bookInfo: any,
-  highlights: any[]
+  highlights: any[],
+  organizeByChapter: boolean = false
 ): Promise<boolean> {
   try {
     console.log(`\n写入划线数据到Notion页面 ${pageId}...`);
     console.log(`划线数据数组长度: ${highlights.length}`);
+    console.log(`按章节组织: ${organizeByChapter ? "是" : "否"}`);
 
     // 先删除页面中已有的划线区块
     const deleteResult = await deleteNotionBlocks(apiKey, pageId, "highlights");
@@ -420,6 +422,25 @@ export async function writeHighlightsToNotionPage(
           `处理章节 "${chapter.chapterTitle}"，包含 ${chapter.highlights.length} 条划线`
         );
 
+        // 如果按章节组织，添加章节标题
+        if (organizeByChapter) {
+          blocks.push({
+            object: "block",
+            type: "heading_2",
+            heading_2: {
+              rich_text: [
+                {
+                  type: "text",
+                  text: {
+                    content:
+                      chapter.chapterTitle || `章节 ${chapter.chapterUid}`,
+                  },
+                },
+              ],
+            },
+          });
+        }
+
         // 添加每条划线
         for (const highlight of chapter.highlights) {
           // 添加划线内容
@@ -438,7 +459,18 @@ export async function writeHighlightsToNotionPage(
             },
           });
 
-          // 添加分隔符
+          // 如果不按章节组织，添加分隔符
+          if (!organizeByChapter) {
+            blocks.push({
+              object: "block",
+              type: "divider",
+              divider: {},
+            });
+          }
+        }
+
+        // 如果按章节组织，在章节结束后添加分隔符
+        if (organizeByChapter) {
           blocks.push({
             object: "block",
             type: "divider",
@@ -464,11 +496,13 @@ export async function writeThoughtsToNotionPage(
   pageId: string,
   bookInfo: any,
   thoughts: any[],
-  incrementalUpdate: boolean = false
+  incrementalUpdate: boolean = false,
+  organizeByChapter: boolean = false
 ): Promise<boolean> {
   try {
     console.log(`\n写入想法数据到Notion页面 ${pageId}...`);
     console.log(`想法数据数组长度: ${thoughts.length}`);
+    console.log(`按章节组织: ${organizeByChapter ? "是" : "否"}`);
 
     // 只有在非增量更新或有新想法时才删除旧内容
     const shouldDeleteOldThoughts = !incrementalUpdate || thoughts.length > 0;
@@ -521,9 +555,12 @@ export async function writeThoughtsToNotionPage(
     const thoughtsByChapter = thoughts.reduce((acc: any, thought: any) => {
       const chapterUid = thought.chapterUid || 0;
       if (!acc[chapterUid]) {
-        acc[chapterUid] = [];
+        acc[chapterUid] = {
+          chapterTitle: thought.chapterTitle || `章节 ${chapterUid}`,
+          thoughts: [],
+        };
       }
-      acc[chapterUid].push(thought);
+      acc[chapterUid].thoughts.push(thought);
       return acc;
     }, {});
 
@@ -536,10 +573,29 @@ export async function writeThoughtsToNotionPage(
 
     // 遍历每个章节
     for (const chapterUid of sortedChapterUids) {
-      const chapterThoughts = thoughtsByChapter[chapterUid];
+      const chapterData = thoughtsByChapter[chapterUid];
+      const chapterThoughts = chapterData.thoughts;
       console.log(
         `处理章节 ${chapterUid} 中的 ${chapterThoughts.length} 条想法`
       );
+
+      // 如果按章节组织，添加章节标题
+      if (organizeByChapter) {
+        blocks.push({
+          object: "block",
+          type: "heading_2",
+          heading_2: {
+            rich_text: [
+              {
+                type: "text",
+                text: {
+                  content: chapterData.chapterTitle,
+                },
+              },
+            ],
+          },
+        });
+      }
 
       // 添加每条想法
       for (const thought of chapterThoughts) {
@@ -583,7 +639,18 @@ export async function writeThoughtsToNotionPage(
           });
         }
 
-        // 添加分隔符
+        // 如果不按章节组织，添加分隔符
+        if (!organizeByChapter) {
+          blocks.push({
+            object: "block",
+            type: "divider",
+            divider: {},
+          });
+        }
+      }
+
+      // 如果按章节组织，在章节结束后添加分隔符
+      if (organizeByChapter) {
         blocks.push({
           object: "block",
           type: "divider",

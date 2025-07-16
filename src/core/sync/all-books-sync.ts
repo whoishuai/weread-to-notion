@@ -5,7 +5,11 @@
 import { enhanceBookMetadata } from "../formatter";
 import { syncBookContent } from "./book-sync";
 import { saveSyncState } from "../../utils/file";
-import { getNotebookBooks, getBookshelfBooks, getBookInfo } from "../../api/weread/services";
+import {
+  getNotebookBooks,
+  getBookshelfBooks,
+  getBookInfo,
+} from "../../api/weread/services";
 import {
   checkBookExistsInNotion,
   writeBookToNotion,
@@ -66,22 +70,28 @@ export async function syncAllBooks(
         // 获取书籍详细信息（包括ISBN和出版社）
         console.log(`获取《${book.title}》的详细信息...`);
         const detailedBookInfo = await getBookInfo(cookie, book.bookId);
-        
+
         // 合并详细信息到书籍数据中
         const enhancedBook = {
           ...book,
           // 优先使用详细API返回的信息
-          isbn: detailedBookInfo?.isbn || book.isbn || '',
-          publisher: detailedBookInfo?.publisher || book.publisher || '',
+          isbn: detailedBookInfo?.isbn || book.isbn || "",
+          publisher: detailedBookInfo?.publisher || book.publisher || "",
           // 其他可能的详细信息也可以在这里添加
-          intro: detailedBookInfo?.intro || book.intro || '',
-          publishTime: detailedBookInfo?.publishTime || book.publishTime || '',
+          intro: detailedBookInfo?.intro || book.intro || "",
+          publishTime: detailedBookInfo?.publishTime || book.publishTime || "",
         };
-        
-        console.log(`获取到ISBN: ${enhancedBook.isbn}, 出版社: ${enhancedBook.publisher}`);
-        
+
+        console.log(
+          `获取到ISBN: ${enhancedBook.isbn}, 出版社: ${enhancedBook.publisher}`
+        );
+
         // 写入书籍元数据到Notion
-        const writeResult = await writeBookToNotion(apiKey, databaseId, enhancedBook);
+        const writeResult = await writeBookToNotion(
+          apiKey,
+          databaseId,
+          enhancedBook
+        );
 
         if (!writeResult.success || !writeResult.pageId) {
           failCount++;
@@ -99,7 +109,8 @@ export async function syncAllBooks(
         book.bookId,
         finalPageId,
         book,
-        useIncremental
+        useIncremental,
+        false // 默认不按章节组织
       );
 
       // 检查是否有真正的更新

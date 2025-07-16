@@ -244,6 +244,15 @@ export class WeReadClient {
       if (bookData.updated && bookData.updated.length > 0) {
         console.log(`处理 ${bookData.updated.length} 条划线记录`);
 
+        // 创建章节映射表，用于快速查找章节标题
+        const chapterTitleMap = new Map<number, string>();
+        if (bookData.chapters && bookData.chapters.length > 0) {
+          bookData.chapters.forEach((chapter: any) => {
+            chapterTitleMap.set(chapter.chapterUid, chapter.title);
+          });
+          console.log(`创建章节映射表，包含 ${chapterTitleMap.size} 个章节`);
+        }
+
         // 按章节整理划线
         const chapterMap = new Map<number, FormattedHighlight[]>();
 
@@ -259,11 +268,15 @@ export class WeReadClient {
           // 处理时间格式
           let timeStr = this.formatTimestamp(highlight.created);
 
+          // 从章节映射表获取正确的章节标题
+          const chapterTitle =
+            chapterTitleMap.get(chapterUid) || `章节 ${chapterUid}`;
+
           // 添加划线到对应章节
           chapterMap.get(chapterUid)?.push({
             text: highlight.markText,
             chapterUid: highlight.chapterUid,
-            chapterTitle: highlight.chapterTitle || "",
+            chapterTitle: chapterTitle,
             created: highlight.created,
             createdTime: timeStr,
             style: highlight.style,
@@ -274,9 +287,11 @@ export class WeReadClient {
 
         // 将整理好的划线按章节添加到结果中
         chapterMap.forEach((highlights, chapterUid) => {
+          // 使用第一个划线的章节标题（现在已经是正确的了）
+          const chapterTitle = highlights[0].chapterTitle;
           formattedHighlights.push({
             chapterUid,
-            chapterTitle: highlights[0].chapterTitle || `章节 ${chapterUid}`,
+            chapterTitle,
             highlights,
           });
         });

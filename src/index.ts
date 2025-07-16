@@ -99,12 +99,24 @@ async function main() {
       }
     } else if (bookId) {
       // 同步单本书籍
+      let organizeByChapter = false;
+      if (CONFIG_DATABASE_ID) {
+        const { loadLibraryConfig } = await import(
+          "./api/notion/config-service"
+        );
+        const config = await loadLibraryConfig(
+          NOTION_API_KEY,
+          CONFIG_DATABASE_ID
+        );
+        organizeByChapter = config.organizeByChapter === "是";
+      }
       await syncSingleBook(
         NOTION_API_KEY,
         DATABASE_ID,
         cookie,
         bookId,
-        !fullSync
+        !fullSync,
+        organizeByChapter
       );
     } else {
       console.log(

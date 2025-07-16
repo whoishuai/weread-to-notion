@@ -63,6 +63,7 @@ export interface LibraryConfig {
   enabledReadingStatus: string[]; // 启用的阅读状态
   enabledAuthors: string[]; // 启用的作者列表
   syncMode?: "全量" | "增量"; // 新增：同步模式
+  organizeByChapter?: "是" | "否"; // 新增：按章节划线
 }
 
 /**
@@ -100,6 +101,9 @@ export interface ConfigDatabasePage {
       }>;
     };
     "全量/增量"?: {
+      select: { name: string };
+    };
+    按章节划线?: {
       select: { name: string };
     };
   };

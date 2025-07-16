@@ -55,6 +55,8 @@ export async function loadLibraryConfig(
     const readingStatusOptions = configPage.properties.阅读状态.multi_select;
     const authorOptions = configPage.properties.作者.multi_select;
     const syncModeOption = configPage.properties["全量/增量"]?.select?.name;
+    const organizeByChapterOption =
+      configPage.properties["按章节划线"]?.select?.name;
 
     // 提取选中的阅读状态
     const enabledReadingStatus = readingStatusOptions.map(
@@ -75,11 +77,15 @@ export async function loadLibraryConfig(
     if (syncModeOption) {
       console.log(`配置加载成功，同步模式: ${syncModeOption}`);
     }
+    if (organizeByChapterOption) {
+      console.log(`配置加载成功，按章节划线: ${organizeByChapterOption}`);
+    }
 
     return {
       enabledReadingStatus,
       enabledAuthors,
       syncMode: syncModeOption === "全量" ? "全量" : "增量", // 没有字段时默认增量
+      organizeByChapter: organizeByChapterOption === "是" ? "是" : "否", // 默认否
     };
   } catch (error: any) {
     console.error("读取配置数据库失败:", error.message);
@@ -121,6 +127,12 @@ export async function createDefaultSyncConfig(
           },
           阅读状态: {
             multi_select: [{ name: "已读" }, { name: "在读" }],
+          },
+          "全量/增量": {
+            select: { name: "增量" },
+          },
+          按章节划线: {
+            select: { name: "否" },
           },
         },
       },
