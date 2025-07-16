@@ -54,6 +54,7 @@ export async function loadLibraryConfig(
     const configPage = data.results[0];
     const readingStatusOptions = configPage.properties.阅读状态.multi_select;
     const authorOptions = configPage.properties.作者.multi_select;
+    const syncModeOption = configPage.properties["全量/增量"]?.select?.name;
 
     // 提取选中的阅读状态
     const enabledReadingStatus = readingStatusOptions.map(
@@ -71,10 +72,14 @@ export async function loadLibraryConfig(
         enabledAuthors.length > 0 ? enabledAuthors.join(", ") : "无限制"
       }`
     );
+    if (syncModeOption) {
+      console.log(`配置加载成功，同步模式: ${syncModeOption}`);
+    }
 
     return {
       enabledReadingStatus,
       enabledAuthors,
+      syncMode: syncModeOption === "全量" ? "全量" : "增量", // 没有字段时默认增量
     };
   } catch (error: any) {
     console.error("读取配置数据库失败:", error.message);

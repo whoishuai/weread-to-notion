@@ -75,11 +75,22 @@ async function main() {
       // 同步所有书籍
       if (CONFIG_DATABASE_ID) {
         console.log("检测到配置数据库ID，将使用配置过滤同步");
+        // 加载配置，决定 useIncremental
+        const { loadLibraryConfig } = await import(
+          "./api/notion/config-service"
+        );
+        const config = await loadLibraryConfig(
+          NOTION_API_KEY,
+          CONFIG_DATABASE_ID
+        );
+        let useIncremental = config.syncMode !== "全量";
+        // 命令行 --full-sync 优先级更高
+        if (cliFullSync) useIncremental = false;
         await syncAllBooksWithConfig(
           NOTION_API_KEY,
           DATABASE_ID,
           cookie,
-          !fullSync,
+          useIncremental,
           CONFIG_DATABASE_ID
         );
       } else {

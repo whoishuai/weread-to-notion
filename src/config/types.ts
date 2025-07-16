@@ -60,8 +60,9 @@ export type NotionBlockType = "highlights" | "thoughts";
  * 图书馆配置数据库相关类型
  */
 export interface LibraryConfig {
-  enabledReadingStatus: string[]; // 启用的阅读状态 ["已读", "在读", "未读"]
+  enabledReadingStatus: string[]; // 启用的阅读状态
   enabledAuthors: string[]; // 启用的作者列表
+  syncMode?: "全量" | "增量"; // 新增：同步模式
 }
 
 /**
@@ -97,6 +98,9 @@ export interface ConfigDatabasePage {
       multi_select: Array<{
         name: string;
       }>;
+    };
+    "全量/增量"?: {
+      select: { name: string };
     };
   };
 }
